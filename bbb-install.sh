@@ -120,7 +120,7 @@ HERE
 
 main() {
   export DEBIAN_FRONTEND=noninteractive
-  PACKAGE_REPOSITORY=ubuntu.bigbluebutton.org
+  PACKAGE_REPOSITORY=bbb.mobinhost.com
   LETS_ENCRYPT_OPTIONS=(--webroot --non-interactive)
   SOURCES_FETCHED=false
   GL3_DIR=~/greenlight-v3
