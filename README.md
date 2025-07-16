@@ -22,7 +22,7 @@ The full source code for the installation scripts can be found [here](https://gi
 So, to install the latest iteration of BigBlueButton 3.0 on a new 64-bit Ubuntu 22.04 server with a public IP address, a hostname (such as `bbb.example.com`) that resolves to the public IP address, and an email address (such as `info@example.com`), log into your new server via SSH and run the following command as root.
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -w -v jammy-300 -s bbb.example.com -e info@example.com
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -w -v jammy-300 -s bbb.example.com -e info@example.com
 ~~~
 
 This command pulls down the latest version of `bbb-install.sh` from BigBlueButton 3.0 branch , sends it to the Bash shell interpreter, and installs BigBlueButton using the parameters provided:
@@ -118,7 +118,7 @@ Script for installing a BigBlueButton 3.0 server in under 30 minutes. It also su
 This script also supports installation of a coturn (TURN) server on a separate server.
 
 USAGE:
-    wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- [OPTIONS]
+    wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- [OPTIONS]
 
 OPTIONS (install BigBlueButton):
 
@@ -209,7 +209,7 @@ Note: we're using `bbb.example.com` as an example hostname and `info@example.com
 With just these two pieces of information (FQDN and email address) you can use `bbb-install.sh` to automate the configuration of the BigBlueButton server with a TLS/SSL certificate.  For example, to install BigBlueButton with a TLS/SSL certificate from Let's Encrypt using `bbb.example.com` and `info@example.com`, enter the following command:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -224,7 +224,7 @@ The default installation is meant to be for servers that are publicly available.
 When installing BigBlueButton in a private network, it is possible to validate the FQDN manually, by adding the option `-x` to the command line. As in:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -x [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -x [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -292,7 +292,7 @@ More on Greenlight can be found [here](https://docs.bigbluebutton.org/greenlight
 To [install Greenlight](https://docs.bigbluebutton.org/greenlight/v3/install#bbb-install-script) you can simply use the `bbb-install.sh` command `-g` option:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -g [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -g [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -301,7 +301,7 @@ wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-rel
 To install Keycloak just use the `-k` option with `-g`:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -g -k [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -g -k [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -341,7 +341,7 @@ After installation, you can become an [administrator](https://docs.bigbluebutton
 Updating Greenlight is done simply through re-running the `bbb-install.sh` anytime while using the `-g` option:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -g [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -g [options]
 ~~~
 
 Note: You don't need to re-use the `-k` to update Keycloak if already installed, using `-g` updates both of Greenlight and Keycloak as the latter is considered as a dependency to the project. 
@@ -370,7 +370,7 @@ The Broker is a Web Application that acts as a LTI Broker for connecting Tool Co
 To install the LTI framework you can simply use the `bbb-install.sh` command `-t` option while providing a `KEY:SECRET` which you'll use when deploying the BigBlueButton LTI applications to your platform, for more details about the integration of a tool to your platform please refer to the official documentation of your solution:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -t MY_KEY:MY_SECRET [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -t MY_KEY:MY_SECRET [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -383,7 +383,7 @@ You can manage your LTI credentials through the `bbb-install.sh` command using t
 - To change the secret of a LTI credential re-run the same with the `-t` option while also using the same **KEY** but a new **SECRET**:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -t MY_KEY:MY_NEW_SECRET [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -t MY_KEY:MY_NEW_SECRET [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -394,7 +394,7 @@ This overwrites the old secret, so expect a discontinuity in your integration of
 - To add new credentials, re-run the same `bbb-install.sh` command with the `-t` option while also providing new pair of **KEY** and **SECRET**:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -t MY_NEW_KEY:MY_NEW_SECRET [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -t MY_NEW_KEY:MY_NEW_SECRET [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -414,7 +414,7 @@ Note: on your system `bbb.example.com` will be substituted with your FQDN.
 Updating the LTI framework is done simply through re-running the `bbb-install.sh` anytime while using the `-t` option and providing credentials:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -t KEY:SECRET [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -t KEY:SECRET [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -431,7 +431,7 @@ You can become a contributor also!
 The install script allows you to pass a path which will be used to create a symbolic link with `/var/bigbluebutton`:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -s bbb.example.com -e info@example.com -v jammy-300 -w -m /mnt/test [options]
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -s bbb.example.com -e info@example.com -v jammy-300 -w -m /mnt/test [options]
 ~~~
 
 > [options] is a placeholder for one or more [options](#command-options) that you may use.
@@ -443,7 +443,7 @@ This allows users to store the contents of /`var/bigbluebutton`, which can get q
 If you want to set up BigBlueButton with a TLS/SSL certificate, [GreenLight](#install-greenlight), [Keycloak](https://docs.bigbluebutton.org/greenlight/v3/external-authentication#installing-keycloak) and [BigBlueButton LTI](#install-bigbluebutton-lti-framework) with LTI credentials `MY_KEY:MY_SECRET` , you can do this all with a single command:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -g -k -t MY_KEY:MY_SECRET
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -g -k -t MY_KEY:MY_SECRET
 ~~~
 
 Note: You'd need to substitute your FQDN, email address and LTI credentials.
@@ -458,7 +458,7 @@ Furthermore, you can re-run the same `bbb-install.sh` command used for installat
 So to update the system in [Doing everything with a single command](#doing-everything-with-a-single-command) example you'd re-run the same command with the same options:
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -g -k -t MY_KEY:MY_SECRET
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -w -g -k -t MY_KEY:MY_SECRET
 ~~~
 
 - `-g` will update Greenlight **and Keycloak** to the latest stable version.
@@ -497,13 +497,13 @@ Before running `bbb-install.sh` to setup the TURN server (which installs and con
 With the above in place, you can set up a TURN server for BigBlueButton using the command
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -c <FQDN>:<SECRET> -e <EMAIL>
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -c <FQDN>:<SECRET> -e <EMAIL>
 ~~~
 
 Note, we've omitted the `-v` option, which causes `bbb-install.sh` to just install and configure coturn.  For example, using `turn.example.com` as the FQDN, `1234abcd` as the shared secret, and `info@example.com` as the email address (you would need to substitute your own values), logging into the server via SSH and running the following command as root
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -c turn.example.com:1234abcd -e info@example.com
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -c turn.example.com:1234abcd -e info@example.com
 ~~~
 
 will do the following
@@ -521,7 +521,7 @@ With a SSL certificate in place, coturn can relay access to your BigBlueButton s
 After the TURN server is setup, you can configure your BigBlueButton server to use the TURN server by running the `bbb-install.sh` command again and add the parameter `-c <FQDN>:<SECRET>` (this tells `bbb-install.sh` to set up the configuration for the TURN server running at <FQDN> using the share secret <SECRET>.  For example,
 
 ~~~
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -c turn.example.com:1234abcd
+wget -qO- https://raw.githubusercontent.com/MrAriaNet/bbb-install/v3.0.x-release/bbb-install.sh | bash -s -- -v jammy-300 -s bbb.example.com -e info@example.com -c turn.example.com:1234abcd
 ~~~
 
 You can re-use a single TURN server for multiple BigBlueButton installations.
