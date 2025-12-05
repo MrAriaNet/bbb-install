@@ -126,6 +126,8 @@ main() {
   GL3_DIR=~/greenlight-v3
   LTI_DIR=~/bbb-lti
   NGINX_FILES_DEST=/usr/share/bigbluebutton/nginx
+  IMAGE_MAGICK_DIR=/etc/ImageMagick-6
+  OVERWRITE_IMAGE_MAGICK_POLICY=true
   CR_TMPFILE=$(mktemp /tmp/carriage-return.XXXXXX)
   printf '\n' > "$CR_TMPFILE"
 
@@ -389,6 +391,126 @@ main() {
 
   if [ -n "$GREENLIGHT" ]; then
     install_greenlight_v3
+  fi
+
+  if [ "$OVERWRITE_IMAGE_MAGICK_POLICY" = true ]; then
+    echo "ATTENTION!!"
+    echo "Overwriting ImageMagick policy file (modifying the default configuration to seal security vectors)"
+
+    #
+    # This is the imagemagick-provided https://imagemagick.org/source/policy-websafe.xml with
+    # minimal modifications required for bigbluebutton presentation conversion to work
+
+
+    cat <<HERE > "$IMAGE_MAGICK_DIR/policy.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policymap [
+<!ELEMENT policymap (policy)*>
+<!ATTLIST policymap xmlns CDATA #FIXED "">
+<!ELEMENT policy EMPTY>
+<!ATTLIST policy xmlns CDATA #FIXED "">
+<!ATTLIST policy domain NMTOKEN #REQUIRED>
+<!ATTLIST policy name NMTOKEN #IMPLIED>
+<!ATTLIST policy pattern CDATA #IMPLIED>
+<!ATTLIST policy rights NMTOKEN #IMPLIED>
+<!ATTLIST policy stealth NMTOKEN #IMPLIED>
+<!ATTLIST policy value CDATA #IMPLIED>
+]>
+<!-- 
+  Creating a security policy that fits your specific local environment
+  before making use of ImageMagick is highly advised. You can find guidance on
+  setting up this policy at https://imagemagick.org/script/security-policy.php,
+  and it's important to verify your policy using the validation tool located
+  at https://imagemagick-secevaluator.doyensec.com/.
+  Web-safe ImageMagick security policy:
+  This security protocol designed for web-safe usage focuses on situations
+  where ImageMagick is applied in publicly accessible contexts, like websites.
+  It deactivates the capability to read from or write to any image formats
+  other than web-safe formats like GIF, JPEG, and PNG. Additionally, this
+  policy prohibits the execution of image filters and indirect reads, thereby
+  thwarting potential security breaches. By implementing these limitations,
+  the web-safe policy fortifies the safeguarding of systems accessible to
+  the public, reducing the risk of exploiting ImageMagick's capabilities
+  for potential attacks.
+ -->
+<policymap>
+  <!-- Set maximum parallel threads. -->
+  <policy domain="resource" name="thread" value="2"/>
+  <!-- Set maximum time to live in seconds or neumonics, e.g. "2 minutes". When
+       this limit is exceeded, an exception is thrown and processing stops. -->
+  <policy domain="resource" name="time" value="60"/>
+  <!-- Set maximum number of open pixel cache files. When this limit is
+       exceeded, any subsequent pixels cached to disk are closed and reopened
+       on demand. -->
+  <policy domain="resource" name="file" value="768"/>
+  <!-- Set maximum amount of memory in bytes to allocate for the pixel cache
+       from the heap. When this limit is exceeded, the image pixels are cached
+       to memory-mapped disk. -->
+  <policy domain="resource" name="memory" value="256MiB"/>
+  <!-- Set maximum amount of memory map in bytes to allocate for the pixel
+       cache. When this limit is exceeded, the image pixels are cached to
+       disk. -->
+  <policy domain="resource" name="map" value="512MiB"/>
+  <!-- Set the maximum width * height of an image that can reside in the pixel
+       cache memory. Images that exceed the area limit are cached to disk. -->
+  <policy domain="resource" name="area" value="16KP"/>
+  <!-- Set maximum amount of disk space in bytes permitted for use by the pixel
+       cache. When this limit is exceeded, the pixel cache is not be created
+       and an exception is thrown. -->
+  <policy domain="resource" name="disk" value="1GiB"/>
+  <!-- Set the maximum length of an image sequence.  When this limit is
+       exceeded, an exception is thrown. -->
+  <policy domain="resource" name="list-length" value="16"/>
+  <!-- Set the maximum width of an image.  When this limit is exceeded, an
+       exception is thrown. -->
+  <policy domain="resource" name="width" value="4KP"/>
+  <!-- Set the maximum height of an image.  When this limit is exceeded, an
+       exception is thrown. -->
+  <policy domain="resource" name="height" value="4KP"/>
+  <!-- Periodically yield the CPU for at least the time specified in
+       milliseconds. -->
+  <policy domain="resource" name="throttle" value="2"/>
+  <!-- Do not create temporary files in the default shared directories, instead
+       specify a private area to store only ImageMagick temporary files. -->
+  <!-- <policy domain="resource" name="temporary-path" value="/magick/tmp/"/> -->
+  <!-- Force memory initialization by memory mapping select memory
+       allocations. -->
+  <policy domain="cache" name="memory-map" value="anonymous"/>
+  <!-- Ensure all image data is fully flushed and synchronized to disk. -->
+  <policy domain="cache" name="synchronize" value="true"/>
+  <!-- Replace passphrase for secure distributed processing -->
+  <!-- <policy domain="cache" name="shared-secret" value="secret-passphrase" stealth="true"/> -->
+  <!-- Do not permit any delegates to execute. -->
+  <policy domain="delegate" rights="none" pattern="*"/>
+  <!-- Do not permit any image filters to load. -->
+  <policy domain="filter" rights="none" pattern="*"/>
+  <!-- Don't read/write from/to stdin/stdout. -->
+  <policy domain="path" rights="none" pattern="-"/>
+  <!-- don't read sensitive paths. -->
+  <policy domain="path" rights="none" pattern="/*"/>
+  <!-- allow access to required paths. -->
+  <policy domain="path" rights="read|write" pattern="/var/bigbluebutton/*"/>
+  <policy domain="path" rights="read|write" pattern="/tmp/*"/>
+  <!-- Indirect reads are not permitted. -->
+  <policy domain="path" rights="none" pattern="@*"/>
+  <!-- Deny all image modules and specifically exempt reading or writing
+       web-safe image formats. -->
+  <policy domain="module" rights="none" pattern="*" />
+  <policy domain="module" rights="read | write" pattern="{BMP,GIF,JPEG,PDF,PNG,TIFF,WEBP}"/>
+  <policy domain="module" rights="read | write" pattern="{MPC}" stealth="true"/>
+  <policy domain="module" rights="write" pattern="{JSON,INFO,PNM,PS,SVG}"/>
+  <!-- This policy sets the number of times to replace content of certain
+       memory buffers and temporary files before they are freed or deleted. -->
+  <policy domain="system" name="shred" value="1"/>
+  <!-- Enable the initialization of buffers with zeros, resulting in a minor
+       performance penalty but with improved security. -->
+  <policy domain="system" name="memory-map" value="anonymous"/>
+  <!-- Set the maximum amount of memory in bytes that are permitted for
+       allocation requests. -->
+  <policy domain="system" name="max-memory-request" value="256MiB"/>
+</policymap>
+
+HERE
   fi
 
   bbb-conf --check
@@ -948,9 +1070,9 @@ install_greenlight_v3(){
   # Adding Keycloak
   if [ -n "$INSTALL_KC" ]; then
       # When attempting to install/update Keycloak let us attempt to create the database to resolve any issues caused by postgres false negatives.
-      docker-compose -f $GL3_DIR/docker-compose.yml up -d postgres && say "started postgres"
+      docker compose -f $GL3_DIR/docker-compose.yml up -d postgres && say "started postgres"
       wait_postgres_start
-      docker-compose -f $GL3_DIR/docker-compose.yml exec -T postgres psql -U postgres -c 'CREATE DATABASE keycloakdb;'
+      docker compose -f $GL3_DIR/docker-compose.yml exec -T postgres psql -U postgres -c 'CREATE DATABASE keycloakdb;'
   fi
 
   if ! grep -q 'keycloak:' $GL3_DIR/docker-compose.yml; then
@@ -960,7 +1082,7 @@ install_greenlight_v3(){
       # Add Keycloak
       say "Adding Keycloak..."
 
-      docker-compose -f $GL3_DIR/docker-compose.yml down
+      docker compose -f $GL3_DIR/docker-compose.yml down
       cp -v $GL3_DIR/docker-compose.yml $GL3_DIR/docker-compose.base.yml # Persist working base compose file for admins as a Backup.
 
       docker run --rm --entrypoint sh $GL_IMG_REPO -c 'cat docker-compose.kc.yml' >> $GL3_DIR/docker-compose.yml
@@ -1016,17 +1138,17 @@ HERE
 
   # Eager pulling images.
   say "pulling latest greenlight-v3 services images..."
-  docker-compose -f $GL3_DIR/docker-compose.yml pull
+  docker compose -f $GL3_DIR/docker-compose.yml pull
 
   if check_container_running greenlight-v3; then
     # Restarting Greenlight-v3 services after updates.
     say "greenlight-v3 is updating..."
     say "shutting down greenlight-v3..."
-    docker-compose -f $GL3_DIR/docker-compose.yml down
+    docker compose -f $GL3_DIR/docker-compose.yml down
   fi
 
   say "starting greenlight-v3..."
-  docker-compose -f $GL3_DIR/docker-compose.yml up -d
+  docker compose -f $GL3_DIR/docker-compose.yml up -d
   sleep 5
   say "greenlight-v3 is now installed and accessible on: https://$HOST${GL_RELATIVE_URL_ROOT:-$GL_DEFAULT_PATH}"
   say "To create Greenlight administrator account, see: https://docs.bigbluebutton.org/greenlight/v3/install#creating-an-admin-account"
@@ -1111,17 +1233,17 @@ install_lti(){
 
   # Updating BBB LTI framework images.
   say "pulling latest BBB LTI framework services images..."
-  docker-compose -f $LTI_DIR/docker-compose.yml pull
+  docker compose -f $LTI_DIR/docker-compose.yml pull
 
   if check_container_running broker; then
     # Restarting BBB LTI framework services after updates.
     say "BBB LTI framework is updating..."
     say "shutting down BBB LTI framework services..."
-    docker-compose -f $LTI_DIR/docker-compose.yml down
+    docker compose -f $LTI_DIR/docker-compose.yml down
   fi
 
   say "starting BBB LTI framework services..."
-  docker-compose -f $LTI_DIR/docker-compose.yml up -d
+  docker compose -f $LTI_DIR/docker-compose.yml up -d
 
   wait_lti_broker_start
 
@@ -1130,9 +1252,9 @@ install_lti(){
 
   say "Setting/updating LTI credentials for LTI KEY: $LTI_KEY..."
 
-  if ! docker-compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:keys:update["$LTI_KEY","$LTI_SECRET"] \
+  if ! docker compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:keys:update["$LTI_KEY","$LTI_SECRET"] \
     2> /dev/null 1>&2; then
-    docker-compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:keys:add["$LTI_KEY","$LTI_SECRET"] \
+    docker compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:keys:add["$LTI_KEY","$LTI_SECRET"] \
       2> /dev/null 1>&2 || err "failed to set LTI credentials $LTI_KEY:$LTI_SECRET."
 
       say "New LTI credentials for LTI KEY: $LTI_KEY were added!"
@@ -1267,10 +1389,10 @@ register_lti_tools() {
 
 wait_lti_broker_start() {
   say "Waiting for the LTI broker to start..."
-  docker-compose -f $LTI_DIR/docker-compose.yml up -d broker || err "failed to register LTI framework apps due to LTI broker failling to start - retry to resolve"
+  docker compose -f $LTI_DIR/docker-compose.yml up -d broker || err "failed to register LTI framework apps due to LTI broker failling to start - retry to resolve"
 
   local tries=0
-  while ! docker-compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:version 2> /dev/null 1>&2; do
+  while ! docker compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:version 2> /dev/null 1>&2; do
     echo -n .
     sleep 3
     if (( ++tries == 3 )); then
@@ -1287,10 +1409,10 @@ wait_lti_broker_start() {
 
 wait_postgres_start() {
   say "Waiting for the Postgres DB to start..."
-  docker-compose -f $GL3_DIR/docker-compose.yml up -d postgres || err "failed to start Postgres service - retry to resolve"
+  docker compose -f $GL3_DIR/docker-compose.yml up -d postgres || err "failed to start Postgres service - retry to resolve"
 
   local tries=0
-  while ! docker-compose -f $GL3_DIR/docker-compose.yml exec -T postgres pg_isready 2> /dev/null 1>&2; do
+  while ! docker compose -f $GL3_DIR/docker-compose.yml exec -T postgres pg_isready 2> /dev/null 1>&2; do
     echo -n .
     sleep 3
     if (( ++tries == 3 )); then
@@ -1327,12 +1449,12 @@ register_lti_tool() {
     err "failed to register $LOG_NAME due to LTI broker not running - retry to resolve."
   fi
 
-  if ! docker-compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:apps:show["$APP_NAME"] \
+  if ! docker compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:apps:show["$APP_NAME"] \
     2> /dev/null 1>&2; then
-    docker-compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:apps:add["$APP_NAME","$CALLBACK_URI","$OAUTH_KEY","$OAUTH_SECRET"] \
+    docker compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:apps:add["$APP_NAME","$CALLBACK_URI","$OAUTH_KEY","$OAUTH_SECRET"] \
       2> /dev/null 1>&2 && say "$LOG_NAME was successfully registered."
   else
-    docker-compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:apps:update["$APP_NAME","$CALLBACK_URI","$OAUTH_KEY","$OAUTH_SECRET"] \
+    docker compose -f $LTI_DIR/docker-compose.yml exec -T broker bundle exec rake db:apps:update["$APP_NAME","$CALLBACK_URI","$OAUTH_KEY","$OAUTH_SECRET"] \
       2> /dev/null 1>&2 && say "$LOG_NAME was successfully updated."
   fi
 
@@ -1385,11 +1507,6 @@ install_docker() {
   # Purge older docker compose if exists.
   if dpkg -l | grep -q docker-compose; then
     apt-get purge -y docker-compose
-  fi
-
-  if [ ! -x /usr/local/bin/docker-compose ]; then
-    curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
   fi
 
   # Ensuring docker is running
@@ -1646,8 +1763,8 @@ fi
         fi
 
         sed -i "s|.*BIGBLUEBUTTON_ENDPOINT=.*|BIGBLUEBUTTON_ENDPOINT=$BIGBLUEBUTTON_URL|" ~/greenlight/.env
-        docker-compose -f "$gl_dir"/docker-compose.yml down
-        docker-compose -f "$gl_dir"/docker-compose.yml up -d
+        docker compose -f "$gl_dir"/docker-compose.yml down
+        docker compose -f "$gl_dir"/docker-compose.yml up -d
       fi
     fi
   done
